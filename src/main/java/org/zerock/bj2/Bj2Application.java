@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 @MapperScan(basePackages = {"org.zerock.bj2.**.mappers"})
 public class Bj2Application {
-
+	
 	public static void main(String[] args) {
 		SpringApplication.run(Bj2Application.class, args);
 	}
