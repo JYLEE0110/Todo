@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>ReadPage</h1>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script>
+
+        const path = "http://192.168.0.37:9090/posts"
+
+
+        // Async함수 return 값은 무조건 promise
+        const getPosts = async() => {
+
+            const res = await axios.get(path)
+            return res.data
+
+        }
+
+        console.log(getPosts())
+
+        // axios.get(path)
+        //     .then(res => {
+        //         console.log(res.data)
+        //     })
+        //     .catch(ex => {
+            
+        //     })
+
+    </script>
+
+</body>
+</html>
