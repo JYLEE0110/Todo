@@ -1,22 +1,166 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/lteLayout.html}">
 </head>
 <body>
-    <h1>ReadPage</h1>
+    <div layout:fragment="content">
+        <h1>ReadPage</h1>
 
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        <ul class = "postsDiv ">
+        
+        </ul>
+    
+        <div>
+            <form method="post" class="registData">
+                TITLE : <input type="text" name="registTitle">
+                AUTHOR : <input type="text" name="registAuthor">
+                <button type="submit" >submit</button>
+            </form>
+        </div>
 
-    <script>
+        <!-- Modal -->
+        <div class="modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Modal title</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                
+                <div class="modal-body">
 
+                    <input type="text" name="title">
+                    <input type="text" name="author">
+
+                </div>
+
+                <div class="modal-footer">
+                  <button type="button"  class="btn btn-danger btnDelete">DELETE</button>
+                  <button type="button" class="btn btn-primary btnModify">MODIFY</button>
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">ClOSE</button>
+                </div>
+              </div>
+            </div>
+        </div>
+          <!-- Modal End -->
+
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    </div>
+
+    <script layout:fragment ="script" th:inline = "javascript">
+        const postsDiv = document.querySelector(".postsDiv")
         const path = "http://192.168.0.37:9090/posts"
+        const modalDiv = $(".modal")
+        const registData = document.querySelector(".registData")
 
+        const titleInput = document.querySelector('input[name="registTitle"]')
+        const authorInput = document.querySelector('input[name="registAuthor"]')
+
+        const originTitle = document.querySelector('input[name="title"]')
+        const originAuthor = document.querySelector('input[name="author"]')
+
+        // 등록
+        registData.addEventListener("submit", e => {
+            
+            //오작동 막기위해서 씀
+            e.preventDefault()
+            e.stopPropagation()
+
+            // const postData
+
+            const title = titleInput.value
+            const author = authorInput.value
+
+            postOne({title,author})
+           .then(post => {
+            console.log(post)
+            titleInput.value =''
+            authorInput.value = ''
+           })
+           getDataDefault()
+        })
+
+        // 상세페이지 이벤트Listner
+        postsDiv.addEventListener("click",e =>{
+            
+            //오작동 막기위해서 씀
+            e.preventDefault()
+            e.stopPropagation()
+
+            const target = e.target
+            console.log(target)
+
+            // ID속성 값 확인 => id 변수 충돌 pid로 설정
+            const pid = target.getAttribute("data-id")
+            console.log(pid)
+
+            // 이벤트가 발생한 read페이지의 데이터를 불러옴
+            // Modal창을 띄움
+            getPostOne(pid)
+            .then(post => {
+                console.log(post)
+                
+                const {id,title,author} = post
+
+                //modal의 내용물을 변경
+                document.querySelector('.modal-title').innerHTML = id
+                document.querySelector('input[name="title"]').value = title
+                document.querySelector('input[name="author"]').value = author
+
+                modalDiv.modal('show')
+            })
+
+        },false) // 캡쳐링 금지 버블링만 가능
+
+        // 삭제
+        document.querySelector(".btnDelete").addEventListener("click", e =>{
+
+            // id 값을 추출
+            const id = document.querySelector('.modal-title').innerHTML
+
+            deletePostOne(id)
+            .then(result => {
+                console.log(result)
+
+                // 모달창 가려줌 => DOM에는 존재
+                modalDiv.modal('hide')
+                // 삭제후 readData 가져오는 함수
+                getDataDefault()
+            })
+
+        },false)
+
+        // 수정
+        document.querySelector(".btnModify").addEventListener("click", e => {
+
+            // id 값을 추출
+            const id = document.querySelector('.modal-title').innerHTML
+
+            const title = originTitle.value
+            const author = originAuthor.value
+
+            modifyPutOne({id,title, author})
+            .then(result => {
+                console.log(result)
+
+                // 모달창 가려줌 => DOM에는 존재
+                modalDiv.modal('hide')
+                // 삭제후 readData 가져오는 함수
+                getDataDefault()
+            })
+        })
 
         // Async함수 return 값은 무조건 promise
+        const postOne = async(data) => {
+
+        const res = await axios.post(path, data)
+        return res.data
+
+        }
+
         const getPosts = async() => {
 
             const res = await axios.get(path)
@@ -24,15 +168,47 @@
 
         }
 
-        console.log(getPosts())
+        const getPostOne = async(id) => {
+            const res = await axios.get(`${path}/${id}`)
+            return res.data 
+        }
 
-        // axios.get(path)
-        //     .then(res => {
-        //         console.log(res.data)
-        //     })
-        //     .catch(ex => {
-            
-        //     })
+
+        const deletePostOne = async(id) => {
+            const res = await axios.delete(`${path}/${id}`)
+            return res.data
+        }
+
+        const modifyPutOne = async(data) => {
+            const res = await axios.put(`${path}/${data.id}`,data)
+            return res.data
+        }
+
+        // 모든 read페이지를 불러옴
+        // 함수로 빼줌 수정 / 삭제 시 유용
+        function getDataDefault(){
+         getPosts()
+            .then(arr => {
+
+            let str = ""
+            console.log(arr)
+
+            for(let i = 0; i<arr.length; i++){
+
+                const{id, title, author} = arr[i]
+                
+                // 커스텀 속성 자바스크립트의 모든 데이터를 HTML에서 사용할 수 있도록 => data- 
+                str += `<li data-id = ${id}>${title}</li>`
+
+            }
+            console.log(str)
+            postsDiv.innerHTML=str
+
+        })
+    }
+
+    // readPage를 불러오는 함수
+    getDataDefault()
 
     </script>
 
