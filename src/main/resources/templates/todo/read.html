@@ -107,8 +107,8 @@
 
                 //modal의 내용물을 변경
                 document.querySelector('.modal-title').innerHTML = id
-                document.querySelector('input[name="title"]').value = title
-                document.querySelector('input[name="author"]').value = author
+                originTitle.value = title
+                originAuthor.value = author
 
                 modalDiv.modal('show')
             })
