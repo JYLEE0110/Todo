@@ -81,7 +81,7 @@
             authorInput.value = ''
            })
            getDataDefault()
-        })
+        },false)
 
         // 상세페이지 이벤트Listner
         postsDiv.addEventListener("click",e =>{
@@ -118,6 +118,10 @@
         // 삭제
         document.querySelector(".btnDelete").addEventListener("click", e =>{
 
+            //오작동 막기위해서 씀
+            e.preventDefault()
+            e.stopPropagation()
+
             // id 값을 추출
             const id = document.querySelector('.modal-title').innerHTML
 
@@ -136,6 +140,10 @@
         // 수정
         document.querySelector(".btnModify").addEventListener("click", e => {
 
+            //오작동 막기위해서 씀
+            e.preventDefault()
+            e.stopPropagation()
+
             // id 값을 추출
             const id = document.querySelector('.modal-title').innerHTML
 
@@ -151,7 +159,7 @@
                 // 삭제후 readData 가져오는 함수
                 getDataDefault()
             })
-        })
+        },false)
 
         // Async함수 return 값은 무조건 promise
         const postOne = async(data) => {
