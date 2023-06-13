@@ -19,7 +19,9 @@ public class ReplyDTO {
     private String reply;
     private String replyer;
 
-    
+    @Builder.Default
+    private Long gno = 0L;
+
     private LocalDate replyDate;
 
 }
