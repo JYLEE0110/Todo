@@ -18,4 +18,18 @@
 </update>
 
 
+<insert id="insertChild">
+    insert into tbl_reply2 (tno,reply,replyer,gno) values (#{tno},#{reply},#{replyer},#{gno})
+</insert>
+
+<select id="selectList" resultType="org.zerock.bj2.dto.ReplyDTO">
+    
+    select 
+	    if(rno = gno, 0,1) as step, rno, tno, gno, reply, replyer, replyDate
+    from tbl_reply2 
+    where tno = #{tno} order by gno asc, rno asc
+    limit #{pr.skip}, #{pr.size}
+    
+</select>
+
 </mapper>

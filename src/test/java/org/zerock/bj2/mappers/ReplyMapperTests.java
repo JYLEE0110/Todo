@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
+import org.zerock.bj2.dto.PageRequestDTO;
 import org.zerock.bj2.dto.ReplyDTO;
 
 import lombok.extern.log4j.Log4j2;
@@ -17,6 +18,7 @@ public class ReplyMapperTests {
     @Autowired(required = false)
     private ReplyMapper replyMapper;
 
+    // 순수 댓글
     @Test
     // test코드는 기본 rollback => @commit
     @Transactional
@@ -46,4 +48,35 @@ public class ReplyMapperTests {
 
     }
     
+    // 대댓글
+    @Test
+    // test코드는 기본 rollback => @commit
+    @Transactional
+    @Commit
+    public void testInsertchild(){
+
+        ReplyDTO replyDTO  = ReplyDTO.builder()
+        .tno(100L)
+        .reply("대댓글 테스트")
+        .replyer("replyer00")
+        .gno(9L)
+        .build(); 
+
+
+        replyMapper.insertChild(replyDTO);
+
+    }
+
+    // 댓글 페이징
+    @Test
+    public void testSelectList(){
+
+        PageRequestDTO pageRequestDTO = PageRequestDTO.builder().build(); // 1,10
+        Long tno = 100L;
+
+        replyMapper.selectList(tno, pageRequestDTO)
+        .forEach(dto -> log.info(dto));
+
+    }
+
 }

@@ -21,7 +21,10 @@ public class ReplyDTO {
 
     @Builder.Default
     private Long gno = 0L;
+    
+    private int step;
 
     private LocalDate replyDate;
+    
 
 }
